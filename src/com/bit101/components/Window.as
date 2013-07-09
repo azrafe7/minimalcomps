@@ -210,6 +210,7 @@ package com.bit101.components
 		protected function onMinimize(event:MouseEvent):void
 		{
 			minimized = !minimized;
+			dispatchEvent(new Event("minimize"));
 		}
 		
 		protected function onClose(event:MouseEvent):void

@@ -171,6 +171,19 @@ package com.bit101.components
 		}
 
 		/**
+		 * Sets / gets the selected state of this CheckBox.
+		 */
+		public function set value(s:Boolean):void
+		{
+			_selected = s;
+			_button.visible = _selected;
+		}
+		public function get value():Boolean
+		{
+			return _selected;
+		}
+
+		/**
 		 * Sets/gets whether this component will be enabled or not.
 		 */
 		public override function set enabled(value:Boolean):void

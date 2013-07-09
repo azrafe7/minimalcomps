@@ -39,6 +39,9 @@ package com.bit101.components
 		protected var _winHeight:Number = 100;
 		protected var _vbox:VBox;
 		
+		public var onMinimize:Function = null;
+		public var onMaximize:Function = null;
+		
 		/**
 		 * Constructor
 		 * @param parent The parent DisplayObjectContainer on which to add this Panel.
@@ -68,7 +71,7 @@ package com.bit101.components
 			_vbox.spacing = 0;
 
 			_windows = new Array();
-			for(var i:int = 0; i < 2; i++)
+			for(var i:int = 0; i < 0; i++)
 			{
 				var window:Window = new Window(_vbox, 0, 0, "Section " + (i + 1));
 				window.grips.visible = false;
@@ -102,6 +105,7 @@ package com.bit101.components
 			window.draggable = false;
 			window.grips.visible = false;
 			window.addEventListener(Event.SELECT, onWindowSelect);
+			window.addEventListener("minimize", onWindowSelect);
 			_windows.splice(index, 0, window);
 			_winHeight = _height - (_windows.length - 1) * 20;
 			setSize(_winWidth, _winHeight);
@@ -125,7 +129,7 @@ package com.bit101.components
 			_winHeight = Math.max(_winHeight, 40);
 			for(var i:int = 0; i < _windows.length; i++)
 			{
-				_windows[i].setSize(_winWidth, _winHeight);
+				//_windows[i].setSize(_winWidth, _windows[i].height);
 				_vbox.draw();
 			}
 		}
@@ -150,15 +154,26 @@ package com.bit101.components
 		protected function onWindowSelect(event:Event):void
 		{
 			var window:Window = event.target as Window;
-			if(window.minimized)
+			var thisIdx:int;
+			for(var i:int = 0; i < _windows.length; i++)
 			{
-				for(var i:int = 0; i < _windows.length; i++)
-				{
-					_windows[i].minimized = true;
+				if (_windows[i] != window) {
+					if (!_windows[i].minimized)  {
+						_windows[i].minimized = true;
+						if (onMinimize != null) onMinimize(this, _windows[i], i);
+					}
 				}
-				window.minimized = false;
+				else thisIdx = i;
 			}
+			if (event.type != "minimize") window.minimized = !window.minimized;
 			_vbox.draw();
+			
+			if (window.minimized && onMinimize != null) onMinimize(this, window, thisIdx);
+			if (!window.minimized && onMaximize != null) onMaximize(this, window, thisIdx);
+		}
+		
+		public function get numWindows():int {
+			return _windows.length;
 		}
 		
 		public override function set width(w:Number):void
@@ -172,6 +187,14 @@ package com.bit101.components
 			_winHeight = h - (_windows.length - 1) * 20;
 			super.height = h;
 		}
+		
+		public override function get height():Number
+		{
+			var _h:Number = 0;
+			for (var i:int = 0; i < _windows.length; i++) _h += _windows[i].height;
+			return _h;
+		}
+		
 		
 	}
 }
